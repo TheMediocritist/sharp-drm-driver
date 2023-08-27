@@ -38,6 +38,13 @@
 #define CMD_WRITE_LINE 0b10000000
 #define CMD_CLEAR_SCREEN 0b00100000
 
+static int ditherMatrix[4][4] = {
+    {  15, 195,  60, 240 },
+    { 135,  75, 180, 120 },
+    {  45, 225,  30, 210 },
+    { 165, 105, 150,  90 }
+};
+
 struct sharp_memory_panel {
 	struct drm_device drm;
 	struct drm_simple_display_pipe pipe;
@@ -195,8 +202,8 @@ static size_t sharp_memory_gray8_to_mono_tagged(u8 *buf, int width, int height, 
 			// Build up the destination mono byte
 			for (b1 = 0; b1 < 8; b1++) {
 
-				// Change at what gray level the mono pixel is active here
-				if (buf[(line * width) + b8 + b1] >= g_param_mono_cutoff) {
+				// Change at what gray level the mono pixel is active here using Bayer 4x4 dithering
+                                if (buf[(line * width) + b8 + b1] >= ditherMatrix[((line * width) + b8 + b1) % 4][line % 4]) {
 					d |= 0b10000000 >> b1;
 				}
 			}
