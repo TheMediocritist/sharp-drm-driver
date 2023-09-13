@@ -202,8 +202,10 @@ static size_t sharp_memory_gray8_to_mono_tagged(u8 *buf, int width, int height, 
 			// Build up the destination mono byte
 			for (b1 = 0; b1 < 8; b1++) {
 
-				// Change at what gray level the mono pixel is active here using Bayer 4x4 dithering
-                                if (buf[(line * width) + b8 + b1] >= ditherMatrix[((line * width) + b8 + b1) % 4][line % 4]) {
+				// Change at what gray level the mono pixel is active here using either mono_cutoff or Bayer 4x4 dithering
+				if (g_param_mono_cutoff > 0 && buf[(line * width) + b8 + b1] >= g_param_mono_cutoff) {
+					d |= 0b10000000 >> b1;
+				} else if (buf[(line * width) + b8 + b1] >= ditherMatrix[((line * width) + b8 + b1) % 4][line % 4]) {
 					d |= 0b10000000 >> b1;
 				}
 			}
